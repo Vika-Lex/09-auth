@@ -1,17 +1,37 @@
 import axios from "axios";
-import {type Note} from "@/types/note";
+import {type Note, User} from "@/types/note";
 import {API_URL} from "@/constants";
+
 
 export interface NoteResponse {
     notes: Note[];
     totalPages: number;
 }
 
+export interface RegisterRequest {
+    email: string;
+    password: string;
+    userName: string;
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export enum Sorting {
     CREATED = 'created',
 }
 
+export const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true
+})
 
+const nextServer = axios.create({
+    baseURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/api`,
+    withCredentials: true
+})
 export const getAllNotes = async (
     search: string,
     page: number = 1,
@@ -19,26 +39,14 @@ export const getAllNotes = async (
     perPage: number = 10,
     tag?: string
 ): Promise<NoteResponse> => {
-    const params = new URLSearchParams();
-
-    params.append('page', String(page));
-    params.append('sortBy', sorting);
-    params.append('perPage', String(perPage));
-
-    console.log(params)
-    if (search) {
-        params.append('search', search);
-    }
-
-    if (tag) {
-        params.append('tag', tag)
-    }
-    const {data} = await axios.get<NoteResponse>(`${API_URL}/notes?${params.toString()}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-        },
+    const params = new URLSearchParams({
+        page: String(page),
+        sortBy: sorting,
+        perPage: String(perPage),
+        ...(search && {search}),
+        ...(tag && {tag}),
     });
+    const {data} = await nextServer.get<NoteResponse>(`/notes?${params.toString()}`, {});
     return data;
 }
 
@@ -46,32 +54,26 @@ export const getAllNotes = async (
 export const getNoteById = async (
     id: string
 ): Promise<Note> => {
-
-    const {data} = await axios.get<Note>(`${API_URL}/notes/${id}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-        },
-    });
+    const {data} = await nextServer.get<Note>(`/notes/${id}`);
     return data;
 }
 
 export const createNote = async (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> => {
-    const {data} = await axios.post<Note>(`${API_URL}/notes`, note, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-        },
-    });
+    const {data} = await nextServer.post<Note>(`/notes`, note);
     return data;
 }
 
 export const deleteNote = async (id: string): Promise<Note> => {
-    const {data} = await axios.delete<Note>(`${API_URL}/notes/${id}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-        },
-    });
+    const {data} = await nextServer.delete<Note>(`/notes/${id}`);
+    return data;
+}
+
+export const registerUser = async (userData: RegisterRequest) => {
+    const {data} = await nextServer.post<User>('/auth/register', userData);
+    return data;
+}
+
+export const loginUser = async (loginData: LoginRequest) => {
+    const {data} = await nextServer.post<User>('/auth/login', loginData);
     return data;
 }

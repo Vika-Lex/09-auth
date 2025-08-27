@@ -19,7 +19,8 @@ const NoteForm = () => {
                 queryKey: ['notes']
             });
             clearDraft();
-            router.back()
+            router.push('/notes/filter/All')
+
         },
         onError: (error) => {
             console.error('Error creating note:', error);
