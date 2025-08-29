@@ -1,13 +1,12 @@
 'use client';
 
 import Modal from "@/components/Modal/Modal";
-import {getNoteById} from "@/lib/api/api";
+import {getNoteById} from "@/lib/api/clientApi";
 import {useQuery} from "@tanstack/react-query";
 import {useParams, useRouter} from "next/navigation";
 import ErrorMessage from "@/components/ErrorMessage/ErrorMessage";
 import Loading from "@/app/loading";
-import React, {useEffect, useState} from "react";
-import {Note} from "@/types/note";
+import React from "react";
 import css from './NotePreview.module.css';
 
 export default function NotePreviewClient() {
