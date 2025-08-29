@@ -1,4 +1,4 @@
-import {api} from "@/lib/api";
+import {api} from "@/app/api/api";
 import {NextRequest, NextResponse} from "next/server";
 
 export async function GET(request: NextRequest) {

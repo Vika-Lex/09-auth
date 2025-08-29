@@ -3,34 +3,45 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import css from './page.module.css';
-import {RegisterRequest, registerUser} from "@/lib/api";
+import {ApiError, registerUser} from "@/lib/api/clientApi";
+import {useAuthStore} from "@/lib/store/authStore";
 
 const SignUpPage = () => {
+    const {setUser} = useAuthStore();
     const router = useRouter();
     const [error, setError] = useState<string>('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (formData: FormData) => {
         setError('');
+        setIsLoading(true);
 
-        const formValues = Object.fromEntries(formData) as RegisterRequest;
+        const userData = {
+            email: formData.get('email') as string,
+            password: formData.get('password') as string,
+        };
 
         try {
-            const res = await registerUser(formValues);
-           if(res) {
-               router.push('/');
-
-           } else {
-               setError('Invalid email or password');
-           }
-
+            const res =  await registerUser(userData);
+            if (res) {
+                setUser(res)
+                router.push('/profile');
+            } else {
+                setError('Invalid email or password');
+            }
         } catch (err) {
-            setError('Registration failed. Please try again.');
-            console.error('Registration error:', err);
+            setError(
+                (err as ApiError).response?.data?.error ??
+                (err as ApiError).message ??
+                'Oops... some error'
+            )
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className={css.mainContent}>
+        <main className={css.mainContent}>
             <h1 className={css.formTitle}>Sign up</h1>
             <form className={css.form} action={handleSubmit}>
 
@@ -45,14 +56,14 @@ const SignUpPage = () => {
                 </div>
 
                 <div className={css.actions}>
-                    <button type="submit" className={css.submitButton} >
-                      Register
+                    <button type="submit" className={css.submitButton} disabled={isLoading}>
+                        {isLoading ? 'Registering...' : 'Register'}
                     </button>
                 </div>
 
                 {error && <p className={css.error}>{error}</p>}
             </form>
-        </div>
+        </main>
     );
 };
 

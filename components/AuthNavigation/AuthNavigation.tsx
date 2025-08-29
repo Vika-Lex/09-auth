@@ -1,22 +1,35 @@
-import Link from 'next/link';
+"use client"
 import css from './AuthNavigation.module.css';
+import {useAuthStore} from "@/lib/store/authStore";
+import {logoutUser} from "@/lib/api/clientApi";
+import {useRouter} from "next/navigation";
+import Link from 'next/link';
 
 const AuthNavigation = () => {
-    // TODO: Replace with actual user state/authentication logic
-    const isAuthenticated = false;
-    const userEmail = "user@example.com";
+    const {isAuthenticated, user, clearIsAuthenticated} = useAuthStore()
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await logoutUser();
+            clearIsAuthenticated();
+            router.push("/sign-in");
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
 
     if (isAuthenticated) {
         return (
             <>
                 <li className={css.navigationItem}>
-                    <a href="/profile" className={css.navigationLink}>
+                    <Link href="/profile" className={css.navigationLink}>
                         Profile
-                    </a>
+                    </Link>
                 </li>
                 <li className={css.navigationItem}>
-                    <p className={css.userEmail}>{userEmail}</p>
-                    <button className={css.logoutButton}>
+                    <p className={css.userEmail}>{user?.email}</p>
+                    <button className={css.logoutButton} onClick={handleLogout}>
                         Logout
                     </button>
                 </li>

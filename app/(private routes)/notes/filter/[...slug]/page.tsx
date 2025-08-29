@@ -1,5 +1,5 @@
-import NotesClient from "@/app/notes/filter/[...slug]/Notes.client";
-import {getAllNotes, Sorting} from "@/lib/api";
+import NotesClient from "./Notes.client";
+import {getAllNotes} from "@/lib/api/clientApi";
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
 import { Metadata } from "next";
 
@@ -38,11 +38,11 @@ const Page = async ({params}: PageProps) => {
     const tag = filterValue === 'All' ? '' : filterValue;
 
     const queryClient = new QueryClient();
-    const initialData = await getAllNotes('', 1, Sorting.CREATED, 10, tag);
+    const initialData = await getAllNotes('', 1, undefined, 10, tag);
 
     await queryClient.prefetchQuery({
         queryKey: ['notes', '', 1, tag],
-        queryFn: () => getAllNotes('', 1, Sorting.CREATED, 10, tag),
+        queryFn: () => getAllNotes('', 1, undefined, 10, tag),
     });
 
     return (

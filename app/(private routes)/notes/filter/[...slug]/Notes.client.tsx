@@ -1,14 +1,13 @@
 'use client';
 
 import css from './page.module.css';
-import * as NoteService from "@/lib/api";
+import * as NoteService from "@/lib/api/clientApi";
 import {keepPreviousData, useQuery} from "@tanstack/react-query";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import {useEffect, useState} from "react";
 import {useDebounce} from "use-debounce";
 import NoteList from "@/components/NoteList/NoteList";
-import {Sorting} from "@/lib/api";
 import {Note} from "@/types/note";
 import Link from 'next/link';
 
@@ -34,7 +33,7 @@ const Notes = ({initialData, filterTag}:NotesProps) => {
 
     const {data, isError, isLoading} = useQuery({
         queryKey: ['notes', debouncedQuery, page, tag],
-        queryFn: () => NoteService.getAllNotes(debouncedQuery, page, Sorting.CREATED, 10, tag),
+        queryFn: () => NoteService.getAllNotes(debouncedQuery, page, undefined, 10, tag),
         placeholderData: keepPreviousData,
         initialData
     })

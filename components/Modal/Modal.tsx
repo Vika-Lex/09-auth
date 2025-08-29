@@ -2,7 +2,7 @@
 
 import css from './Modal.module.css';
 import {createPortal} from "react-dom";
-import {ReactNode, useEffect} from "react";
+import {ReactNode} from "react";
 import {useRouter} from "next/navigation";
 
 interface ModalProps {
@@ -27,18 +27,7 @@ const Modal = ({children, onCloseModal}:ModalProps) => {
         handleCloseModal()
     }
 
-    // useEffect(() => {
-    //     const handleEscape = (event: KeyboardEvent) => {
-    //         if (event.key === 'Escape') {
-    //             handleCloseModal()
-    //         }
-    //     };
-    //
-    //     document.addEventListener('keydown', handleEscape);
-    //     return () => {
-    //         document.removeEventListener('keydown', handleEscape);
-    //     };
-    // }, [onCloseModal]);
+
     return createPortal(
         (
             <div

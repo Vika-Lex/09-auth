@@ -2,15 +2,15 @@
 
 import css from './NoteForm.module.css';
 import {useMutation, useQueryClient} from "@tanstack/react-query";
-import * as NoteService from "@/lib/api";
-import {useNoteDraftStore} from "@/lib/store/noteStore";
+import * as NoteService from "@/lib/api/clientApi";
+import {useNoteStore} from "@/lib/store/noteStore";
 import { useRouter } from 'next/navigation';
 
 const NoteForm = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    const {draft, setDraft, clearDraft} = useNoteDraftStore()
+    const {draft, setDraft, clearDraft} = useNoteStore()
 
     const mutation = useMutation({
         mutationFn: NoteService.createNote,

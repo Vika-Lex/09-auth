@@ -1,31 +1,42 @@
-import { create } from "zustand";
-import {persist, createJSONStorage} from "zustand/middleware";
-import {NewNoteData} from "@/types/note";
+import { create } from 'zustand';
+import { persist, devtools } from 'zustand/middleware';
 
-type NoteDraftStore = {
-    draft: NewNoteData,
-    setDraft: (draft: NewNoteData) => void,
-    clearDraft: () => void
-};
-
-const initialState: NewNoteData = {
-    title: '',
-    content: '',
-    tag: 'Todo'
+export interface NoteFormData {
+    title: string;
+    content: string;
+    tag: string;
 }
 
-export const useNoteDraftStore = create<NoteDraftStore>()(
-    persist(
-        (set) => ({
-            draft: initialState,
-            setDraft: (note: NewNoteData) => set((state) => ({ ...state, draft: note })),
-            clearDraft: () => set((state) => ({ ... state, draft: initialState })),
-        }),
-        {
-            name: "note-storage",
-            storage: createJSONStorage(() => localStorage),
-            partialize: (state) => ({draft: state.draft})
+export const initialDraft: NoteFormData = {
+    title: '',
+    content: '',
+    tag: 'Todo',
+};
 
+interface NoteStore {
+    draft: NoteFormData;
+    setDraft: (note: Partial<NoteFormData>) => void;
+    clearDraft: () => void;
+}
+
+export const useNoteStore = create<NoteStore>()(
+    devtools(
+        persist(
+            (set, get) => ({
+                draft: initialDraft,
+                setDraft: (note: Partial<NoteFormData>) =>
+                    set({
+                        draft: { ...get().draft, ...note },
+                    }, false, "setDraft"),
+                clearDraft: () => set({ draft: initialDraft }, false, "clearDraft"),
+            }),
+            {
+                name: 'note-draft-storage',
+                partialize: (state) => ({ draft: state.draft }),
+            }
+        ),
+        {
+            name: 'note-store',
         }
     )
-)
+);
