@@ -4,6 +4,7 @@ import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import {Metadata} from "next";
+import AuthProvider from "@/components/AuthProvider/AuthProvider";
 
 const roboto = Roboto({
     variable: "--font-roboto",
@@ -40,21 +41,22 @@ export default function RootLayout({
     modal: React.ReactNode;
 }>) {
 
-
     return (
         <html lang="en">
         <body className={` ${roboto.variable}`}>
         <TanStackProvider>
-            <div className='wrapper'>
-                <Header/>
-                <main>
-                    <div className='container'>
-                        {children}
-                        {modal}
-                    </div>
-                </main>
-                <Footer/>
-            </div>
+            <AuthProvider>
+                <div className='wrapper'>
+                    <Header/>
+                    <main>
+                        <div className='container'>
+                            {children}
+                            {modal}
+                        </div>
+                    </main>
+                    <Footer/>
+                </div>
+            </AuthProvider>
         </TanStackProvider>
         </body>
         </html>

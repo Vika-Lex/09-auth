@@ -1,13 +1,14 @@
 import NotesClient from "./Notes.client";
-import {getAllNotes} from "@/lib/api/clientApi";
+import {getAllServerNotes} from "@/lib/api/serverApi";
 import {dehydrate, HydrationBoundary, QueryClient} from "@tanstack/react-query";
-import { Metadata } from "next";
+import {Metadata} from "next";
+import {Sorting} from "@/lib/api/api";
 
 interface PageProps {
     params: Promise<{ slug: string[] }>;
 }
 
-export async function generateMetadata({params}: PageProps):Promise<Metadata> {
+export async function generateMetadata({params}: PageProps): Promise<Metadata> {
     const {slug} = await params;
     const filterValue = slug[0];
     const tag = filterValue === 'All' ? '' : filterValue;
@@ -34,22 +35,18 @@ export async function generateMetadata({params}: PageProps):Promise<Metadata> {
 const Page = async ({params}: PageProps) => {
     const {slug} = await params;
     const filterValue = slug[0];
-
     const tag = filterValue === 'All' ? '' : filterValue;
 
     const queryClient = new QueryClient();
-    const initialData = await getAllNotes('', 1, undefined, 10, tag);
 
-    await queryClient.prefetchQuery({
+    const prefetchData = await queryClient.fetchQuery({
         queryKey: ['notes', '', 1, tag],
-        queryFn: () => getAllNotes('', 1, undefined, 10, tag),
+        queryFn: () => getAllServerNotes('', 1, Sorting.CREATED, 10, tag),
     });
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <NotesClient filterTag={tag}
-                         initialData={initialData}
-            />
+            <NotesClient filterTag={tag} initialData={prefetchData}/>
         </HydrationBoundary>
 
     );

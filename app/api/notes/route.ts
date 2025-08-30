@@ -1,34 +1,81 @@
-import {api} from "@/app/api/api";
-import {NextRequest, NextResponse} from "next/server";
+import { NextResponse } from 'next/server';
+import { api } from '../api';
+import { cookies } from 'next/headers';
+import { logErrorResponse } from '../_utils/utils';
+import { isAxiosError } from 'axios';
 
-export async function GET(request: NextRequest) {
-    try {
-        const {searchParams} = new URL(request.url);
-        console.log('URL', request.url)
-        const res = await api.get(`/notes?${searchParams.toString()}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-            }
-        })
-        return NextResponse.json(res.data);
-    } catch (e) {
-        return NextResponse.json({error: 'Failed to fetch notes'}, {status: 500});
-    }
-}
+type Props = {
+    params: Promise<{ id: string }>;
+};
 
-export async function POST(request: NextRequest) {
+export async function GET(request: Request, { params }: Props) {
     try {
-        const note = await request.json();
-        const res = await api.post('/notes', note, {
+        const cookieStore = await cookies();
+        const { id } = await params;
+        const res = await api(`/notes/${id}`, {
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_NOTEHUB_TOKEN}`,
-            }
+                Cookie: cookieStore.toString(),
+            },
         });
-        return NextResponse.json(res.data);
-    } catch (e) {
-        return NextResponse.json({error: 'Failed to create note'}, {status: 500});
+        return NextResponse.json(res.data, { status: res.status });
+    } catch (error) {
+        if (isAxiosError(error)) {
+            logErrorResponse(error.response?.data);
+            return NextResponse.json(
+                { error: error.message, response: error.response?.data },
+                { status: error.status }
+            );
+        }
+        logErrorResponse({ message: (error as Error).message });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
+export async function DELETE(request: Request, { params }: Props) {
+    try {
+        const cookieStore = await cookies();
+        const { id } = await params;
+
+        const res = await api.delete(`/notes/${id}`, {
+            headers: {
+                Cookie: cookieStore.toString(),
+            },
+        });
+        return NextResponse.json(res.data, { status: res.status });
+    } catch (error) {
+        if (isAxiosError(error)) {
+            logErrorResponse(error.response?.data);
+            return NextResponse.json(
+                { error: error.message, response: error.response?.data },
+                { status: error.status }
+            );
+        }
+        logErrorResponse({ message: (error as Error).message });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request, { params }: Props) {
+    try {
+        const cookieStore = await cookies();
+        const { id } = await params;
+        const body = await request.json();
+
+        const res = await api.patch(`/notes/${id}`, body, {
+            headers: {
+                Cookie: cookieStore.toString(),
+            },
+        });
+        return NextResponse.json(res.data, { status: res.status });
+    } catch (error) {
+        if (isAxiosError(error)) {
+            logErrorResponse(error.response?.data);
+            return NextResponse.json(
+                { error: error.message, response: error.response?.data },
+                { status: error.status }
+            );
+        }
+        logErrorResponse({ message: (error as Error).message });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
