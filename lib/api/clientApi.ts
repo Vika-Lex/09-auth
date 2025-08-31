@@ -3,7 +3,7 @@ import {CheckSessionRequest, LoginCredentials, RegisterData, RefreshTokenRespons
 import {User} from "@/types/user";
 import {ApiError, NoteResponse, Sorting, clientApi} from "@/lib/api/api";
 
-export type { ApiError };
+export type {ApiError};
 
 export const getAllNotes = async (
     search: string,
@@ -16,8 +16,8 @@ export const getAllNotes = async (
         page: String(page),
         sortBy: sorting,
         perPage: String(perPage),
-        ...(search && { search }),
-        ...(tag && { tag })
+        ...(search && {search}),
+        ...(tag && {tag})
     });
 
     const response = await clientApi.get(`/notes?${params.toString()}`);
@@ -30,8 +30,7 @@ export const getNoteById = async (id: string): Promise<Note> => {
 }
 
 export const deleteNote = async (id: string): Promise<void> => {
-    const response = await clientApi.delete(`/notes/${id}`);
-return response.data;
+    await clientApi.delete(`/notes/${id}`);
 }
 
 export const createNote = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> => {
@@ -50,8 +49,7 @@ export const loginUser = async (credentials: LoginCredentials): Promise<User> =>
 };
 
 export const logoutUser = async (): Promise<void> => {
-    const response = await clientApi.post('/auth/logout')
-return response.data;
+    await clientApi.post('/auth/logout')
 };
 
 export const getCurrentUser = async (): Promise<User> => {
@@ -61,11 +59,6 @@ export const getCurrentUser = async (): Promise<User> => {
 
 export const checkSession = async (): Promise<CheckSessionRequest> => {
     const res = await clientApi.get<CheckSessionRequest>('/auth/session');
-    return res.data;
-}
-
-export const refreshToken = async (): Promise<RefreshTokenResponse> => {
-    const res = await clientApi.post<RefreshTokenResponse>('/auth/refresh');
     return res.data;
 }
 
