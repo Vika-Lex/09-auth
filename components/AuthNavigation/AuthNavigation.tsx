@@ -6,13 +6,13 @@ import {useRouter} from "next/navigation";
 import Link from 'next/link';
 
 const AuthNavigation = () => {
-    const {isAuthenticated, user, clearIsAuthenticated} = useAuthStore()
+    const {isAuthenticated, user, clearAuth} = useAuthStore()
     const router = useRouter();
 
     const handleLogout = async () => {
         try {
             await logoutUser();
-            clearIsAuthenticated();
+            clearAuth();
             router.push("/sign-in");
         } catch (error) {
             console.error('Logout error:', error);
