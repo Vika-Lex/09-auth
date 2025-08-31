@@ -9,7 +9,7 @@ interface Props {
 }
 
 const AuthProvider = ({children}: Props) => {
-    const {setUser,clearIsAuthenticated,isAuthenticated,user} = useAuthStore()
+    const {setUser,clearAuth,user} = useAuthStore()
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -23,14 +23,14 @@ const AuthProvider = ({children}: Props) => {
                         if (user) setUser(user);
                     }
                 } else {
-                    clearIsAuthenticated()
+                    clearAuth()
                 }
             } catch {
-                clearIsAuthenticated()
+                clearAuth()
             }
         }
         fetchUser();
-    }, [setUser, clearIsAuthenticated])
+    }, [setUser, clearAuth])
 
     return children;
 }

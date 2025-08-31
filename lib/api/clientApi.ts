@@ -1,5 +1,5 @@
 import {type Note} from "@/types/note";
-import {CheckSessionRequest, LoginCredentials, RegisterData, RefreshTokenResponse} from "@/types/auth";
+import {CheckSessionRequest, LoginCredentials, RegisterData} from "@/types/auth";
 import {User} from "@/types/user";
 import {ApiError, NoteResponse, Sorting, clientApi} from "@/lib/api/api";
 
@@ -29,8 +29,9 @@ export const getNoteById = async (id: string): Promise<Note> => {
     return response.data;
 }
 
-export const deleteNote = async (id: string): Promise<void> => {
-    await clientApi.delete(`/notes/${id}`);
+export const deleteNote = async (id: string): Promise<Note> => {
+    const response = await clientApi.delete(`/notes/${id}`);
+    return response.data;
 }
 
 export const createNote = async (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> => {
@@ -58,8 +59,8 @@ export const getCurrentUser = async (): Promise<User> => {
 };
 
 export const checkSession = async (): Promise<CheckSessionRequest> => {
-    const res = await clientApi.get<CheckSessionRequest>('/auth/session');
-    return res.data;
+    const response = await clientApi.get<CheckSessionRequest>('/auth/session');
+    return response.data;
 }
 
 export const updateUser = async (userData: Partial<Pick<User, 'username'>>): Promise<User> => {
